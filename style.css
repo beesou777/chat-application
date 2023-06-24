@@ -1,0 +1,15 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.container{
+    height:100vh;
+    background:#000;
+}
+h1{
+    color: blue;
+}
+.chat{
+    height: auto;
+    width: 700px;
+}

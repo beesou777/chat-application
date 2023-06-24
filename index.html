@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>chat-application</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+</head>
+<body>
+  <div class="container">
+  <div class="chat">
+    <h1>Chat application</h1>
+    <ul id="messages">
+    </ul>
+
+    <form id="chat-form">
+      <input id="message-input" type="text" placeholder="Type your message..." autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const username = prompt('Enter your username');
+
+    // Function to add a new chat message to the UI
+    function addMessage(username, message, className) {
+      const messageElement = document.createElement('li');
+      messageElement.textContent = `${username}: ${message}`;
+      messageElement.classList.add(className);
+      document.getElementById('messages').appendChild(messageElement);
+    }
+
+    // Handle form submission (sending chat messages)
+    document.getElementById('chat-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const messageInput = document.getElementById('message-input');
+      const message = messageInput.value.trim();
+      if (message) {
+        socket.emit('chat message', message);
+        addMessage('You', message, 'you'); // Display "You" for local user's message
+        messageInput.value = '';
+      }
+    });
+
+    // Handle received chat messages
+    socket.on('chat message', (data) => {
+      if (data.username !== username) { // Display username for messages from other users
+        addMessage(data.username, data.message, 'other');
+      }
+    });
+
+    // Handle user join event
+    socket.on('join', (message) => {
+      addMessage('System', message, 'system');
+    });
+
+    // Handle user leave event
+    socket.on('leave', (message) => {
+      addMessage('System', message, 'system');
+    });
+
+    socket.emit('join', username);
+  </script>
+</body>
+</html>
